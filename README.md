@@ -66,3 +66,24 @@ sudo i2cset -y 1 0x20 0x14 0x01
 \\ set GPA0 to be low
 sudo i2cset -y 1 0x20 0x14 0x00
 ```
+### Using node.js
+blink LED on GPA0
+```
+"use strict";
+
+const mraa = require('mraa');
+
+let i2cDevice = new mraa.I2C(1);
+
+i2cDevice.address(0x20);
+i2cDevice.writeReg(0x00, 0x00);
+
+setInterval(()=>{
+    i2cDevice.address(0x20);
+    i2cDevice.writeReg(0x14, 0x00);
+    setTimeout( () => {
+        i2cDevice.address(0x20);
+        i2cDevice.writeReg(0x14, 0x01);
+    }
+}, 2000)
+```
