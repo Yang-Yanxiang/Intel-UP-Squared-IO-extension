@@ -55,3 +55,35 @@ The mode parameter, if specified, is one of the letters b or w, corresponding to
 The mask parameter, if specified, describes which bits of value will be actually written to data-address. Bits set to 1 in the mask are taken from value, while bits set to 0 will be read from data-address and thus preserved by the operation.
 
 Here is the memory map for the mcp23017
+![MCP23017memory_map](https://github.com/Yang-Yanxiang/Intel-UP-Squared-IO-extension/blob/master/mcp23017_mm.png)
+
+First we configure Port A pins GPA0-7 as outputs. Remember 0x20 is the I2C address of the mcp23017, in the table above you can see that 0x00 is IODIRA and sending 0x00 sets all of the pins to be outputs. If for example you wanted the first 7 pins to be outputs and pin 8 to be an input then the last value would be 0x80.
+```
+\\ let GPA0 be output
+sudo i2cset -y 1 0x20 0x00 0x00
+\\ set GPA0 to a logic high
+sudo i2cset -y 1 0x20 0x14 0x01
+\\ set GPA0 to be low
+sudo i2cset -y 1 0x20 0x14 0x00
+```
+### Using node.js
+blink LED on GPA0
+```
+"use strict";
+
+const mraa = require('mraa');
+
+let i2cDevice = new mraa.I2C(1);
+
+i2cDevice.address(0x20);
+i2cDevice.writeReg(0x00, 0x00);
+
+setInterval(()=>{
+    i2cDevice.address(0x20);
+    i2cDevice.writeReg(0x14, 0x00);
+    setTimeout( () => {
+        i2cDevice.address(0x20);
+        i2cDevice.writeReg(0x14, 0x01);
+    }
+}, 2000)
+```
